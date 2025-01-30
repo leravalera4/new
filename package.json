@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index"
+ "postinstall": "npx puppeteer install --path ./.cache/puppeteer",
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
@@ -23,3 +23,5 @@
     "puppeteer": "^19.11.1"
   }
 }
+
+
