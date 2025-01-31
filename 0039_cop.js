@@ -6,7 +6,7 @@ const { Pool } = require("pg");
 require("dotenv").config();
 const pLimit = require("p-limit");
 
-const limit = pLimit(2); // Ограничиваем до 10 параллельных операций
+const limit = pLimit(1); // Ограничиваем до 10 параллельных операций
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
