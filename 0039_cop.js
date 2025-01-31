@@ -6,7 +6,7 @@ const { Pool } = require("pg");
 require("dotenv").config();
 const pLimit = require("p-limit");
 
-const limit = pLimit(5); // Ограничиваем до 10 параллельных операций
+const limit = pLimit(2); // Ограничиваем до 10 параллельных операций
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -221,7 +221,7 @@ async function startScraping() {
 async function processStore(page, storeLink, productLinks) {
   try {
     console.log(`Navigating to store: ${storeLink}`);
-    await page.goto(storeLink, { waitUntil: "networkidle0", timeout: 60000 });
+    await page.goto(storeLink, { waitUntil: "networkidle0", timeout: 90000 });
 
     //const storeID = page.url().split("/").pop();
     console.log(page.url()); // Для проверки правильности URL
@@ -238,7 +238,7 @@ async function processStore(page, storeLink, productLinks) {
         // Если кнопка есть, кликаем на неё и ждем, чтобы баннер исчез
         await button.click();
         console.log("Cookie banner closed.");
-        await page.waitForTimeout(1000); // Небольшая пауза, чтобы убедиться, что баннер исчез
+        await page.waitForTimeout(5000); // Небольшая пауза, чтобы убедиться, что баннер исчез
       }
     } catch (error) {
       // Если кнопка не найдена, просто продолжаем выполнение
@@ -251,7 +251,7 @@ async function processStore(page, storeLink, productLinks) {
 
     if (setStoreButton) {
       await setStoreButton.click();
-      await page.waitForTimeout(10000);
+      await page.waitForTimeout(30000);
       console.log("BUTTON FOUND FOR STORE:", storeID);
     } else {
       console.warn("Set Store button not found for store:", storeID);
@@ -268,11 +268,11 @@ async function processStore(page, storeLink, productLinks) {
 }
 
 async function scrapeProductPage(page, productLink, storeID) {
-  await page.goto(productLink, { waitUntil: "networkidle0", timeout: 60000 });
+  await page.goto(productLink, { waitUntil: "networkidle0", timeout: 90000 });
 
   let category;
   try {
-    await page.waitForSelector(".chakra-link.css-kho608", { timeout: 15000 });
+    await page.waitForSelector(".chakra-link.css-kho608", { timeout: 25000 });
     const elements = await page.$$eval(".chakra-link.css-kho608", (links) =>
       links.map((link) => link.textContent.trim())
     );
@@ -283,7 +283,7 @@ async function scrapeProductPage(page, productLink, storeID) {
     category = "Unknown Category";
   }
 
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(20000);
 
   while (true) {
     const productHandles = await page.$$(".chakra-linkbox.css-yxqevf");
@@ -297,7 +297,7 @@ async function scrapeProductPage(page, productLink, storeID) {
     const nextUrl = await nextButton.evaluate((el) => el.href); // Получаем ссылку из кнопки
     console.log("Next Page URL:", nextUrl); // Показываем ссылку
     await nextButton.click();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(20000);
   }
 }
 
